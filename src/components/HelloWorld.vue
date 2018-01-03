@@ -1,22 +1,40 @@
 <template>
-  <div class="hello">
-    <h1>{{ msg }}</h1>
-    <h2>Essential Links</h2>
-    <ul>
-      <li><a href="https://vuejs.org" target="_blank">Core Docs</a></li>
-      <li><a href="https://forum.vuejs.org" target="_blank">Forum</a></li>
-      <li><a href="https://chat.vuejs.org" target="_blank">Community Chat</a></li>
-      <li><a href="https://twitter.com/vuejs" target="_blank">Twitter</a></li>
-      <br>
-      <li><a href="http://vuejs-templates.github.io/webpack/" target="_blank">Docs for This Template</a></li>
-    </ul>
-    <h2>Ecosystem</h2>
-    <ul>
-      <li><a href="http://router.vuejs.org/" target="_blank">vue-router</a></li>
-      <li><a href="http://vuex.vuejs.org/" target="_blank">vuex</a></li>
-      <li><a href="http://vue-loader.vuejs.org/" target="_blank">vue-loader</a></li>
-      <li><a href="https://github.com/vuejs/awesome-vue" target="_blank">awesome-vue</a></li>
-    </ul>
+  <div class="hello" style="display: flex">
+    <div style="flex: 3">
+      <el-tree
+        :data="data2"
+        show-checkbox
+        node-key="id"
+        :default-expanded-keys="[2, 3]"
+        :default-checked-keys="[5]"
+        @node-click="currentChange"
+        :props="defaultProps">
+      </el-tree>
+    </div>
+
+    <div style="flex: 9">
+      <el-table
+        :data="tableData"
+        stripe
+        style="width: 100%">
+        <el-table-column
+          prop="id"
+          label="序号"
+          width="180">
+        </el-table-column>
+        <el-table-column
+          prop="parentLabel"
+          label="父机构名称"
+          width="180">
+        </el-table-column>
+        <el-table-column
+          prop="label"
+          align="center"
+          label="名称">
+        </el-table-column>
+      </el-table>
+    </div>
+
   </div>
 </template>
 
@@ -25,13 +43,102 @@ export default {
   name: 'HelloWorld',
   data () {
     return {
-      msg: 'Welcome to Your Vue.js App'
+      tableData:[],
+      data2: [{
+        id: 1,
+        label: '一级 1',
+        parentName: '',
+        children: [{
+          id: 4,
+          label: '二级 1-1',
+          parentName: '1',
+          children: [{
+            id: 9,
+            label: '三级 1-1-1',
+            parentName: '4',
+          }, {
+            id: 10,
+            label: '三级 1-1-2',
+            parentName: '4',
+          }]
+        }]
+      }, {
+        id: 2,
+        label: '一级 2',
+        parentName: '',
+        children: [{
+          id: 5,
+          label: '二级 2-1',
+          parentName: '2',
+          children: [{
+            id: 9,
+            label: '三级 3-1',
+            parentName: '5',
+          }, {
+            id: 10,
+            label: '三级 3-2',
+            parentName: '5',
+          }]
+        }, {
+          id: 6,
+          label: '二级 2-2',
+          parentName: '2',
+        }]
+      }, {
+        id: 3,
+        label: '一级 3',
+        parentName: '',
+        children: [{
+          id: 7,
+          label: '二级 3-1',
+          parentName: '3',
+        }, {
+          id: 8,
+          label: '二级 3-2',
+          parentName: '3',
+        }]
+      }],
+      defaultProps: {
+        children: 'children',
+        label: 'label',
+      }
+    }
+  },
+  watch: {
+    tableData: function (value) {
+//      console.log(value);
+    }
+  },
+  methods: {
+    currentChange (self,node) {
+      let tableData;
+      let appendData;
+      if (self.hasOwnProperty('children')) {
+        tableData = self.children;
+        appendData = {
+          parentLabel: self.label
+        }
+      } else {
+        tableData = [self];
+        appendData = {
+          parentLabel: node.parent.data.label
+        };
+      }
+
+      this.appendDataToArrayItem(tableData, appendData);
+
+
+      this.tableData = tableData
+    },
+    appendDataToArrayItem(array, data) {
+      array.forEach(item => {
+        Object.assign(item, data);
+      });
     }
   }
 }
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 h1, h2 {
   font-weight: normal;
